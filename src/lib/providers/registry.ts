@@ -23,6 +23,62 @@ function createHealthyHealth(): ProviderHealth {
   };
 }
 
+function getCurrentMonthRange() {
+  const now = new Date();
+  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0));
+
+  return {
+    startUnix: Math.floor(monthStart.getTime() / 1000),
+    endUnix: Math.floor(now.getTime() / 1000),
+    startIso: monthStart.toISOString(),
+    endIso: now.toISOString(),
+    year: now.getUTCFullYear(),
+    month: now.getUTCMonth() + 1,
+  };
+}
+
+function extractAmountValue(value: unknown): number {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  if (value && typeof value === 'object' && 'value' in value) {
+    return extractAmountValue((value as { value: unknown }).value);
+  }
+
+  return 0;
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' ? (value as Record<string, unknown>) : null;
+}
+
+function sumResultAmounts(results: unknown[]): number {
+  return results.reduce<number>((sum, result) => {
+    const record = asRecord(result);
+    return sum + extractAmountValue(record?.amount);
+  }, 0);
+}
+
+function sumUsageNetAmounts(items: unknown[]): number {
+  return items.reduce<number>((sum, item) => {
+    const record = asRecord(item);
+    return sum + extractAmountValue(record?.netAmount ?? record?.net_amount);
+  }, 0);
+}
+
+async function createHttpError(providerName: string, res: Response): Promise<Error> {
+  const raw = await res.text().catch(() => '');
+  const compactBody = raw.replace(/\s+/g, ' ').slice(0, 220).trim();
+  const bodyHint = compactBody ? ` - ${compactBody}` : '';
+  return new Error(`${providerName} API error: ${res.status}${bodyHint}`);
+}
+
 // Railway - already integrated
 async function fetchRailway(): Promise<ProviderData> {
   try {
@@ -81,18 +137,30 @@ async function fetchOpenAI(): Promise<ProviderData> {
   }
 
   try {
-    const res = await fetch('https://api.openai.com/v1/organization/costs', {
+    const { startUnix, endUnix } = getCurrentMonthRange();
+    const url = new URL('https://api.openai.com/v1/organization/costs');
+    url.searchParams.set('start_time', String(startUnix));
+    url.searchParams.set('end_time', String(endUnix));
+    url.searchParams.set('bucket_width', '1d');
+    url.searchParams.set('limit', '31');
+
+    const res = await fetch(url, {
       headers: {
         'Authorization': `Bearer ${apiKey}`,
+        'Accept': 'application/json',
       },
     });
 
     if (!res.ok) {
-      throw new Error(`OpenAI API error: ${res.status}`);
+      throw await createHttpError('OpenAI', res);
     }
 
     const data = await res.json();
-    const currentCost = data.data?.[0]?.results?.reduce((sum: number, r: { amount?: number }) => sum + (r.amount || 0), 0) || 0;
+    const currentCost = (Array.isArray(data.data) ? data.data : []).reduce((bucketTotal: number, bucket: unknown) => {
+      const bucketRecord = asRecord(bucket);
+      const bucketResults = Array.isArray(bucketRecord?.results) ? bucketRecord.results : [];
+      return bucketTotal + sumResultAmounts(bucketResults);
+    }, 0);
 
     return {
       id: 'openai',
@@ -140,21 +208,45 @@ async function fetchAnthropic(): Promise<ProviderData> {
   }
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/organizations/cost_report', {
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
+    const { startIso, endIso } = getCurrentMonthRange();
+    const endpoint = 'https://api.anthropic.com/v1/organizations/cost_report';
+    const headers = {
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json',
+      'accept': 'application/json',
+    };
+    let res = await fetch(endpoint, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        starting_at: startIso,
+        ending_at: endIso,
+        bucket_width: '1d',
+      }),
     });
 
+    if (!res.ok && [400, 405, 415].includes(res.status)) {
+      const fallbackUrl = new URL(endpoint);
+      fallbackUrl.searchParams.set('starting_at', startIso);
+      fallbackUrl.searchParams.set('ending_at', endIso);
+      fallbackUrl.searchParams.set('bucket_width', '1d');
+      res = await fetch(fallbackUrl, { headers });
+    }
+
     if (!res.ok) {
-      throw new Error(`Anthropic API error: ${res.status}`);
+      throw await createHttpError('Anthropic', res);
     }
 
     const data = await res.json();
-    const currentCost = data.data?.reduce((sum: number, item: { amount?: string }) => {
-      return sum + (item.amount ? parseFloat(item.amount) : 0);
-    }, 0) || 0;
+    const currentCost = (Array.isArray(data.data) ? data.data : []).reduce((bucketTotal: number, bucket: unknown) => {
+      const bucketRecord = asRecord(bucket);
+      const bucketResults = Array.isArray(bucketRecord?.results) ? bucketRecord.results : [];
+      if (bucketResults.length > 0) {
+        return bucketTotal + sumResultAmounts(bucketResults);
+      }
+      return bucketTotal + extractAmountValue(bucketRecord?.amount);
+    }, 0);
 
     return {
       id: 'anthropic',
@@ -329,27 +421,33 @@ async function fetchElevenLabs(): Promise<ProviderData> {
     const res = await fetch('https://api.elevenlabs.io/v1/user/subscription', {
       headers: {
         'xi-api-key': apiKey,
+        'content-type': 'application/json',
+        'accept': 'application/json',
       },
     });
 
     if (!res.ok) {
-      throw new Error(`ElevenLabs API error: ${res.status}`);
+      throw await createHttpError('ElevenLabs', res);
     }
 
-    const data = await res.json();
-    const current = data.character_count || 0;
-    const limit = data.character_limit || 0;
-    const invoiceAmount = data.open_invoices?.[0]?.amount_due_cents ? data.open_invoices[0].amount_due_cents / 100 : 0;
+    const data = asRecord(await res.json()) ?? {};
+    const current = extractAmountValue(data.character_count);
+    const limit = extractAmountValue(data.character_limit);
+    const nextInvoice = asRecord(data.next_invoice);
+    const invoiceAmount = extractAmountValue(nextInvoice?.amount_due_cents) / 100;
+    const monthlyPrice = extractAmountValue(data.price_per_month);
+    const totalCost = invoiceAmount > 0 ? invoiceAmount : monthlyPrice;
+    const currency = typeof data.currency === 'string' ? data.currency.toUpperCase() : 'USD';
 
     return {
       id: 'elevenlabs',
       name: 'ElevenLabs',
       category: 'ai',
       costs: {
-        currentMonth: invoiceAmount,
+        currentMonth: totalCost,
         lastMonth: null,
-        projected: invoiceAmount,
-        currency: (data.currency || 'usd').toUpperCase(),
+        projected: totalCost,
+        currency,
       },
       usage: {
         unit: 'characters',
@@ -393,30 +491,60 @@ async function fetchGitHub(): Promise<ProviderData> {
   }
 
   try {
-    const res = await fetch(`https://api.github.com/organizations/${org}/settings/billing/usage`, {
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'X-GitHub-Api-Version': '2022-11-28',
-        'Accept': 'application/vnd.github+json',
-      },
+    const { year, month } = getCurrentMonthRange();
+    const headers = {
+      'Authorization': `Bearer ${apiKey}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Accept': 'application/vnd.github+json',
+      'User-Agent': 'service-cost-dashboard',
+    };
+
+    const usageEndpoints = [
+      `https://api.github.com/orgs/${org}/settings/billing/usage`,
+      `https://api.github.com/users/${org}/settings/billing/usage`,
+    ].map(endpoint => {
+      const url = new URL(endpoint);
+      url.searchParams.set('year', String(year));
+      url.searchParams.set('month', String(month));
+      return url.toString();
     });
 
-    if (!res.ok) {
-      throw new Error(`GitHub API error: ${res.status}`);
+    let data: Record<string, unknown> | null = null;
+    let lastError: Error | null = null;
+
+    for (const url of usageEndpoints) {
+      const res = await fetch(url, { headers });
+      if (res.ok) {
+        data = await res.json();
+        break;
+      }
+
+      if (res.status === 404) {
+        continue;
+      }
+
+      lastError = await createHttpError('GitHub', res);
+      break;
     }
 
-    const data = await res.json();
-    const actionsCost = data.usageItems?.filter((item: { product?: string }) => item.product === 'Actions')
-      .reduce((sum: number, item: { netAmount?: number }) => sum + (item.netAmount || 0), 0) || 0;
+    if (!data) {
+      throw lastError ?? new Error(`GitHub API error: 404 - No billing endpoint found for "${org}"`);
+    }
+
+    const usageItems = Array.isArray(data.usageItems)
+      ? data.usageItems
+      : (Array.isArray(data.usage_items) ? data.usage_items : []);
+
+    const totalCost = sumUsageNetAmounts(usageItems);
 
     return {
       id: 'github',
       name: 'GitHub',
       category: 'platform',
       costs: {
-        currentMonth: actionsCost,
+        currentMonth: totalCost,
         lastMonth: null,
-        projected: actionsCost,
+        projected: totalCost,
         currency: 'USD',
       },
       usage: null,
@@ -661,3 +789,4 @@ export async function fetchAllProviders(): Promise<ProviderData[]> {
 export function getProviderById(id: string): ProviderConfig | undefined {
   return providerRegistry.find(p => p.id === id);
 }
+
