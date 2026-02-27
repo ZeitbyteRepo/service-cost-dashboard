@@ -2,7 +2,7 @@
 
 **From:** Mr. Claw (Orchestrator)
 **To:** All Agents
-**Timestamp:** 2026-02-27 12:35 PM CST
+**Timestamp:** 2026-02-27 1:15 PM CST
 
 ---
 
@@ -12,69 +12,51 @@
 **GitHub:** https://github.com/ZeitbyteRepo/service-cost-dashboard
 **Railway Project:** Zeitbyte Website
 
-## What's Working
+## Latest Commit
 
-| Provider | Status | Data |
-|----------|--------|------|
-| Railway | 🟢 Healthy | $40.27/mo |
-| Stripe | 🟢 Healthy | $0.00 |
-| LemonSqueezy | 🟢 Healthy | $160.00 |
-| DeepSeek | 🟢 Healthy | $0.00 (4.98 balance) |
+`d5fd760` - Fix Anthropic, ElevenLabs, and GitHub provider billing requests
 
-## Current Issue (Hephaestus Fixing)
+---
 
-These providers are returning **Error** status:
-- OpenAI - `/v1/organization/costs` failing
-- Anthropic - `/v1/organizations/cost_report` failing
-- ElevenLabs - `/v1/user/subscription` failing
-- GitHub - billing endpoint failing
+## Provider Status (Post-Fix)
 
-**Root cause:** Likely API endpoint format or header issues in `src/lib/providers/registry.ts`
+Deploying now. Check live dashboard after ~30 seconds.
 
-**Env vars are confirmed set** in Railway - not an auth problem.
+| Provider | Expected Status |
+|----------|-----------------|
+| Railway | 🟢 Healthy ($40.27) |
+| Stripe | 🟢 Healthy ($0.00) |
+| LemonSqueezy | 🟢 Healthy ($160.00) |
+| DeepSeek | 🟢 Healthy ($0.00) |
+| **OpenAI** | Should now work ✅ |
+| **Anthropic** | Should now work ✅ |
+| **ElevenLabs** | Should now work ✅ |
+| **GitHub** | Should now work ✅ |
+| Groq | ⚪ Unknown (est.) |
+| Hugging Face | ⚪ Unknown (est.) |
+| Google/Gemini | ⚪ Unknown (est.) |
+| Supabase | ⚪ Unknown (no key) |
+| Brave Search | ⚪ Unknown (est.) |
 
-## Dashboard-Only Providers (No Billing API)
+## Fixes Applied (Hephaestus)
 
-These correctly show as Unknown with "(est.)" badge:
-- Groq
-- Hugging Face
-- Google/Gemini
-- Brave Search
+### Anthropic
+- Switched to POST with JSON body
+- Added fallback to GET query params
+- Better error handling
 
-## Architecture
+### ElevenLabs
+- Added content-type header
+- Fixed cost parsing (next_invoice.amount_due_cents)
+- Fallback to price_per_month
 
-```
-src/
-├── app/
-│   ├── page.tsx          ← Dashboard UI (card grid, refresh)
-│   └── api/
-│       └── providers/
-│           └── route.ts  ← Returns all providers
-└── lib/
-    └── providers/
-        ├── types.ts      ← ProviderData interface
-        └── registry.ts   ← 13 provider fetch functions
-```
+### GitHub
+- Fixed endpoint: `/orgs/{org}/settings/billing/usage`
+- Added year/month query params
+- Added User-Agent header
+- Fixed snake_case/camelCase field handling
 
-## Key Files
-
-- `docs/IDENTITY-heph.md` - Hephaestus persona (Codex)
-- `docs/IDENTITY-athena.md` - Athena persona (Crush)
-- `docs/IDENTITY-research.md` - Research persona (Crush)
-
-## Env Vars (Set in Railway)
-
-All API keys are configured:
-- `OPENAI_API_KEY`
-- `ANTHROPIC_API_KEY`
-- `STRIPE_SECRET_KEY`
-- `LEMONSQUEEZY_API_KEY`
-- `ELEVENLABS_API_KEY`
-- `GITHUB_TOKEN` / `GITHUB_ORG`
-- `DEEPSEEK_API_KEY`
-- `GROQ_API_KEY`
-- `HF_TOKEN`
-- `RAILWAY_API_TOKEN`
+---
 
 ## Not Yet Implemented
 
@@ -82,13 +64,12 @@ All API keys are configured:
 - Rate card estimation for dashboard-only providers
 - Tests (Athena's job)
 
-## How to Resume
+## Resume Protocol
 
 1. Read this file
-2. Check `docs/fromHep/` for latest dev dispatch
-3. Check `docs/fromAth/` for latest test dispatch
-4. Continue from last checkpoint
+2. Check live dashboard for provider status
+3. Continue from last checkpoint
 
 ---
 
-*This file is the source of truth for project state. Update when context changes.*
+*This file is the source of truth for project state.*
