@@ -1,5 +1,5 @@
 const RAILWAY_API_URL = 'https://backboard.railway.app/graphql/v2';
-const RAILWAY_API_TOKEN = '37cda50d-5f39-4bf9-abc9-5467c806949f';
+const RAILWAY_API_TOKEN = process.env.RAILWAY_API_TOKEN;
 
 interface GraphQLResponse<T> {
   data?: T;
@@ -7,6 +7,9 @@ interface GraphQLResponse<T> {
 }
 
 async function graphqlQuery<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
+  if (!RAILWAY_API_TOKEN) {
+    throw new Error('Missing RAILWAY_API_TOKEN environment variable');
+  }
   const response = await fetch(RAILWAY_API_URL, {
     method: 'POST',
     headers: {
@@ -103,3 +106,4 @@ export async function getAllRailwayData() {
     fetchedAt: new Date().toISOString(),
   };
 }
+
