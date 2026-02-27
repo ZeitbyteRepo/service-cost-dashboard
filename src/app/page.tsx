@@ -7,11 +7,15 @@ interface ProvidersApiResponse {
   providers: ProviderData[];
 }
 
-const healthStyles: Record<ProviderData['health']['status'], { dot: string; label: string }> = {
-  healthy: { dot: 'bg-green-500', label: 'Healthy' },
-  degraded: { dot: 'bg-yellow-500', label: 'Degraded' },
-  error: { dot: 'bg-red-500', label: 'Error' },
-  unknown: { dot: 'bg-gray-400', label: 'Unknown' },
+const healthStyles: Record<ProviderData['health']['status'], { dot: string; text: string; label: string }> = {
+  healthy: { dot: 'bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.9)]', text: 'text-cyan-200', label: 'Healthy' },
+  degraded: {
+    dot: 'bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.9)]',
+    text: 'text-amber-200',
+    label: 'Degraded',
+  },
+  error: { dot: 'bg-fuchsia-500 shadow-[0_0_10px_rgba(217,70,239,0.85)]', text: 'text-fuchsia-200', label: 'Error' },
+  unknown: { dot: 'bg-slate-400 shadow-[0_0_10px_rgba(148,163,184,0.6)]', text: 'text-slate-200', label: 'Unknown' },
 };
 
 function formatCurrency(amount: number, currency: string) {
@@ -24,6 +28,19 @@ function formatCurrency(amount: number, currency: string) {
 
 function toCategoryLabel(category: ProviderData['category']) {
   return category.charAt(0).toUpperCase() + category.slice(1);
+}
+
+function formatTimestamp(timestamp: Date | null) {
+  if (!timestamp) return 'Never';
+  return timestamp.toLocaleString('en-US', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
 }
 
 export default function Page() {
@@ -63,14 +80,14 @@ export default function Page() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
+      <div className="panel-bg min-h-screen px-2 py-3 text-slate-100 sm:px-3">
+        <div className="mx-auto w-full max-w-[1180px]">
           <div className="animate-pulse">
-            <div className="mb-2 h-8 w-80 rounded bg-slate-200" />
-            <div className="mb-8 h-4 w-56 rounded bg-slate-200" />
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className="h-44 rounded-xl border border-slate-200 bg-white p-6" />
+            <div className="mb-2 h-6 w-56 rounded bg-cyan-200/30" />
+            <div className="mb-4 h-3 w-44 rounded bg-cyan-200/20" />
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="h-28 rounded-sm border border-cyan-500/20 bg-slate-900/50 p-3" />
               ))}
             </div>
           </div>
@@ -81,14 +98,14 @@ export default function Page() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <div className="rounded-xl border border-red-200 bg-red-50 p-6">
-            <h2 className="mb-2 text-xl font-semibold text-red-700">Error Loading Providers</h2>
-            <p className="text-red-600">{error}</p>
+      <div className="panel-bg min-h-screen px-2 py-3 text-slate-100 sm:px-3">
+        <div className="mx-auto w-full max-w-[1180px]">
+          <div className="rounded-sm border border-fuchsia-400/60 bg-[#190e1e]/80 p-4 shadow-[0_0_26px_rgba(217,70,239,0.18)]">
+            <h2 className="mb-1 text-lg font-semibold uppercase tracking-[0.16em] text-fuchsia-300">System Fault</h2>
+            <p className="text-sm text-fuchsia-100">{error}</p>
             <button
               onClick={() => window.location.reload()}
-              className="mt-4 rounded-md bg-red-600 px-4 py-2 text-white transition hover:bg-red-700"
+              className="mt-3 rounded-sm border border-fuchsia-400/80 bg-fuchsia-400/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-fuchsia-100 transition hover:bg-fuchsia-400/25"
             >
               Retry
             </button>
@@ -99,99 +116,111 @@ export default function Page() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl items-end justify-between gap-4 px-4 py-6 sm:px-6 lg:px-8">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Multi-Provider Cost Dashboard</h1>
-            <p className="mt-1 text-sm text-slate-600">Current month spend and health across integrated providers</p>
-            <p className="mt-1 text-xs text-slate-500">
-              Last updated: {lastUpdated ? lastUpdated.toLocaleString() : 'Never'}
-            </p>
+    <div className="panel-bg min-h-screen text-slate-100">
+      <div className="crt-layer mx-auto w-full max-w-[1180px] px-2 py-2 sm:px-3">
+        <header className="relative mb-2 overflow-hidden rounded-sm border border-cyan-500/45 bg-[#0c1222]/90 px-3 py-2 shadow-[0_0_28px_rgba(34,211,238,0.17)]">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_20%,rgba(34,211,238,0.14),transparent_44%),radial-gradient(circle_at_85%_78%,rgba(251,191,36,0.13),transparent_42%)]" />
+          <div className="relative flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.22em] text-cyan-300/85">Samuel Console // Service Cost Matrix</p>
+              <h1 className="text-sm font-semibold uppercase tracking-[0.14em] text-cyan-100 sm:text-base">
+                Multi-Provider Control Panel
+              </h1>
+              <p className="mt-0.5 text-[10px] uppercase tracking-[0.12em] text-cyan-200/65">
+                Last Sync: {formatTimestamp(lastUpdated)}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 text-[10px]">
+              <p className="rounded-sm border border-cyan-500/50 bg-cyan-500/10 px-2 py-1 uppercase tracking-[0.14em] text-cyan-200">
+                {providers.length} Providers
+              </p>
+              <button
+                onClick={fetchProviders}
+                disabled={isFetching}
+                className="inline-flex items-center gap-1.5 rounded-sm border border-amber-400/80 bg-amber-400/15 px-2 py-1 font-semibold uppercase tracking-[0.14em] text-amber-100 transition hover:bg-amber-400/25 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {isFetching && (
+                  <span className="h-3 w-3 animate-spin rounded-full border border-amber-100/80 border-t-transparent" />
+                )}
+                {isFetching ? 'Refreshing' : 'Refresh'}
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <p className="text-sm text-slate-500">{providers.length} providers</p>
-            <button
-              onClick={fetchProviders}
-              disabled={isFetching}
-              className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {isFetching && (
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-400 border-t-transparent" />
-              )}
-              {isFetching ? 'Refreshing...' : 'Refresh'}
-            </button>
-          </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {providers.length === 0 ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-10 text-center text-slate-600">
-            No providers available.
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {providers.map((provider) => {
-              const health = healthStyles[provider.health.status];
-              const costDisplay = provider.costs
-                ? formatCurrency(provider.costs.currentMonth, provider.costs.currency)
-                : 'N/A';
-              const usagePercent = provider.usage ? Math.max(0, Math.min(100, provider.usage.percentage)) : null;
+        <main>
+          {providers.length === 0 ? (
+            <div className="rounded-sm border border-cyan-500/40 bg-[#0b1324]/80 px-4 py-6 text-center text-xs uppercase tracking-[0.16em] text-cyan-200/80">
+              No Providers Available
+            </div>
+          ) : (
+            <div className="provider-grid grid gap-2">
+              {providers.map((provider) => {
+                const health = healthStyles[provider.health.status];
+                const costDisplay = provider.costs
+                  ? formatCurrency(provider.costs.currentMonth, provider.costs.currency)
+                  : 'N/A';
+                const usagePercent = provider.usage ? Math.max(0, Math.min(100, provider.usage.percentage)) : null;
 
-              return (
-                <article
-                  key={provider.id}
-                  className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md"
-                >
-                  <div className="mb-4 flex items-start justify-between gap-3">
-                    <div>
-                      <h2 className="text-lg font-semibold text-slate-900">{provider.name}</h2>
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
-                          {toCategoryLabel(provider.category)}
-                        </span>
-                        {!provider.hasBillingApi && (
-                          <span className="inline-flex rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700">
-                            (est.)
+                return (
+                  <article
+                    key={provider.id}
+                    className="group relative overflow-hidden rounded-sm border border-cyan-500/35 bg-[#08101f]/90 px-2.5 py-2 shadow-[inset_0_0_18px_rgba(13,110,121,0.2)] transition hover:border-cyan-300/75 hover:shadow-[0_0_24px_rgba(34,211,238,0.25)]"
+                  >
+                    <div className="pointer-events-none absolute right-0 top-0 h-8 w-8 border-r border-t border-fuchsia-400/55 opacity-45 transition group-hover:opacity-80" />
+                    <div className="mb-1.5 flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <h2 className="truncate text-sm font-semibold uppercase tracking-[0.08em] text-cyan-50">
+                          {provider.name}
+                        </h2>
+                        <div className="mt-1 flex flex-wrap items-center gap-1">
+                          <span className="rounded-sm border border-cyan-400/50 bg-cyan-400/10 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] text-cyan-100">
+                            {toCategoryLabel(provider.category)}
                           </span>
-                        )}
+                          {!provider.hasBillingApi && (
+                            <span className="rounded-sm border border-amber-400/70 bg-amber-400/15 px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] text-amber-200">
+                              (est.)
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div
+                        className={`inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${health.text}`}
+                      >
+                        <span className={`h-2 w-2 rounded-full ${health.dot}`} />
+                        {health.label}
                       </div>
                     </div>
-                    <div className="inline-flex items-center gap-2 text-xs font-medium text-slate-600">
-                      <span className={`h-2.5 w-2.5 rounded-full ${health.dot}`} />
-                      {health.label}
-                    </div>
-                  </div>
 
-                  <div className="mb-4">
-                    <p className="text-sm text-slate-500">Current month cost</p>
-                    <p className="mt-1 text-2xl font-semibold text-slate-900">{costDisplay}</p>
-                  </div>
-
-                  {provider.usage && usagePercent !== null && (
-                    <div>
-                      <div className="mb-1 flex items-center justify-between text-xs text-slate-500">
-                        <span>
-                          Usage ({provider.usage.current} {provider.usage.unit}
-                          {provider.usage.limit ? ` / ${provider.usage.limit} ${provider.usage.unit}` : ''})
-                        </span>
-                        <span>{usagePercent.toFixed(0)}%</span>
-                      </div>
-                      <div className="h-2 w-full rounded-full bg-slate-200">
-                        <div
-                          className="h-2 rounded-full bg-slate-700 transition-all"
-                          style={{ width: `${usagePercent}%` }}
-                        />
-                      </div>
+                    <div className="mb-1.5 grid grid-cols-[auto_1fr] items-end gap-x-2 gap-y-0.5">
+                      <p className="text-[10px] uppercase tracking-[0.12em] text-cyan-200/70">Month Cost</p>
+                      <p className="text-right text-base font-semibold leading-none text-cyan-100">{costDisplay}</p>
                     </div>
-                  )}
-                </article>
-              );
-            })}
-          </div>
-        )}
-      </main>
+
+                    {provider.usage && usagePercent !== null && (
+                      <div>
+                        <div className="mb-1 flex items-center justify-between text-[10px] uppercase tracking-[0.1em] text-slate-300/75">
+                          <span className="truncate pr-2">
+                            {provider.usage.current} {provider.usage.unit}
+                            {provider.usage.limit ? ` / ${provider.usage.limit} ${provider.usage.unit}` : ''}
+                          </span>
+                          <span className="text-cyan-200">{usagePercent.toFixed(0)}%</span>
+                        </div>
+                        <div className="h-1.5 w-full rounded-[2px] border border-cyan-700/60 bg-[#111f39] p-[1px]">
+                          <div
+                            className="h-full rounded-[1px] bg-gradient-to-r from-cyan-400 via-cyan-300 to-amber-300 shadow-[0_0_12px_rgba(34,211,238,0.5)] transition-all"
+                            style={{ width: `${usagePercent}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   );
 }
