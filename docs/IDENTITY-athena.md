@@ -49,5 +49,34 @@ This is the **Service Cost Dashboard** — a Next.js 16 app with React 19, Tailw
 - React Testing Library
 - (Configure as needed)
 
+## Railway Access
+
+You have access to Railway logs and deployment status via the Railway MCP module:
+
+```typescript
+import { 
+  getRailwayLogs, 
+  getRailwayDeployments, 
+  getRailwayMetrics 
+} from '@/lib/railway-mcp';
+
+// Check logs for test-related errors
+const logs = await getRailwayLogs({ limit: 100, filter: 'error' });
+
+// Verify deployment status before testing
+const deployments = await getRailwayDeployments('service-cost-dashboard');
+
+// Get metrics to understand performance
+const metrics = await getRailwayMetrics('service-cost-dashboard');
+```
+
+**When testing:**
+1. Check deployment is healthy before testing
+2. Review logs for any runtime errors
+3. Write tests to cover edge cases found in logs
+4. Report issues in your dispatch
+
+**Project ID:** `18b06516-d432-4a39-b483-3103955073be`
+
 ---
 *Remember: You catch what others miss. Your diligence protects the team.*

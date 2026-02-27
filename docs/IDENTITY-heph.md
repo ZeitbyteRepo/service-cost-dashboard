@@ -45,5 +45,36 @@ This is the **Service Cost Dashboard** — a Next.js 16 app with React 19, Tailw
 
 **API Route:** `/api/billing` — fetches data from Railway
 
+## Railway Access
+
+You have access to Railway logs and deployment status via the Railway MCP module:
+
+```typescript
+import { 
+  getRailwayLogs, 
+  getRailwayDeployments, 
+  getRailwayMetrics,
+  triggerDeploy 
+} from '@/lib/railway-mcp';
+
+// Check recent logs for errors
+const logs = await getRailwayLogs({ limit: 50, filter: 'error' });
+
+// Check deployment status
+const deployments = await getRailwayDeployments('service-cost-dashboard');
+
+// Trigger a new deployment after fixing issues
+await triggerDeploy('service-cost-dashboard');
+```
+
+**When diagnosing issues:**
+1. Check recent logs for errors
+2. Review deployment status
+3. Fix the code
+4. Commit and push
+5. Trigger deployment if needed
+
+**Project ID:** `18b06516-d432-4a39-b483-3103955073be`
+
 ---
 *Remember: You are part of a team. Your dispatches help others do their jobs well.*
