@@ -74,9 +74,23 @@ function sumUsageNetAmounts(items: unknown[]): number {
 
 async function createHttpError(providerName: string, res: Response): Promise<Error> {
   const raw = await res.text().catch(() => '');
-  const compactBody = raw.replace(/\s+/g, ' ').slice(0, 220).trim();
+  const compactBody = raw.replace(/\s+/g, ' ').slice(0, 600).trim();
   const bodyHint = compactBody ? ` - ${compactBody}` : '';
-  return new Error(`${providerName} API error: ${res.status}${bodyHint}`);
+  const lowerBody = compactBody.toLowerCase();
+  const permissionHint = (() => {
+    if (providerName === 'OpenAI' && res.status === 403 && lowerBody.includes('missing scopes: api.usage.read')) {
+      return ' Ensure the key is a project/organization key with the `api.usage.read` scope.';
+    }
+    if (providerName === 'Anthropic' && res.status === 401 && lowerBody.includes('invalid x-api-key')) {
+      return ' Verify `ANTHROPIC_API_KEY` is a valid Admin API key for the correct organization.';
+    }
+    if (providerName === 'ElevenLabs' && res.status === 401 && lowerBody.includes('missing_permissions')) {
+      return ' Regenerate the key with `user_read` permission enabled.';
+    }
+    return '';
+  })();
+
+  return new Error(`${providerName} API error: ${res.status}${bodyHint}${permissionHint}`);
 }
 
 // Railway - already integrated
@@ -789,4 +803,5 @@ export async function fetchAllProviders(): Promise<ProviderData[]> {
 export function getProviderById(id: string): ProviderConfig | undefined {
   return providerRegistry.find(p => p.id === id);
 }
+
 
