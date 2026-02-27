@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { ProviderData } from '@/lib/providers/types';
 
 interface ProvidersApiResponse {
@@ -29,25 +29,37 @@ function toCategoryLabel(category: ProviderData['category']) {
 export default function Page() {
   const [providers, setProviders] = useState<ProviderData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const fetchProviders = useCallback(async () => {
+    setIsFetching(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/providers');
+      if (!res.ok) throw new Error('Failed to fetch providers');
+
+      const json = (await res.json()) as ProvidersApiResponse;
+      setProviders(Array.isArray(json.providers) ? json.providers : []);
+      setLastUpdated(new Date());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load providers');
+    } finally {
+      setLoading(false);
+      setIsFetching(false);
+    }
+  }, []);
 
   useEffect(() => {
-    async function fetchProviders() {
-      try {
-        const res = await fetch('/api/providers');
-        if (!res.ok) throw new Error('Failed to fetch providers');
-
-        const json = (await res.json()) as ProvidersApiResponse;
-        setProviders(Array.isArray(json.providers) ? json.providers : []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load providers');
-      } finally {
-        setLoading(false);
-      }
-    }
-
     fetchProviders();
-  }, []);
+    const intervalId = window.setInterval(fetchProviders, 900000);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, [fetchProviders]);
 
   if (loading) {
     return (
@@ -93,8 +105,23 @@ export default function Page() {
           <div>
             <h1 className="text-2xl font-semibold tracking-tight">Multi-Provider Cost Dashboard</h1>
             <p className="mt-1 text-sm text-slate-600">Current month spend and health across integrated providers</p>
+            <p className="mt-1 text-xs text-slate-500">
+              Last updated: {lastUpdated ? lastUpdated.toLocaleString() : 'Never'}
+            </p>
           </div>
-          <p className="text-sm text-slate-500">{providers.length} providers</p>
+          <div className="flex items-center gap-3">
+            <p className="text-sm text-slate-500">{providers.length} providers</p>
+            <button
+              onClick={fetchProviders}
+              disabled={isFetching}
+              className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {isFetching && (
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-400 border-t-transparent" />
+              )}
+              {isFetching ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
         </div>
       </header>
 
