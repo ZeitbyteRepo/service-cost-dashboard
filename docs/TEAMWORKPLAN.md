@@ -97,29 +97,33 @@ docs/
 
 ## Spawn & Resume Protocol
 
-### Orchestrator (On Heartbeat)
+### Orchestrator (Mr. Claw)
 
-1. Read `DISPATCH-INDEX.md`
-2. Check **Pending** section for agents to spawn
-3. Spawn agent with: "Read DISPATCH-INDEX.md, check your unread dispatches, do the task"
-4. Move entry from Pending → Active
-5. Monitor until complete
+1. **Write task dispatch** → `fromMain/task-name.md`
+2. **Update DISPATCH-INDEX** → Add to Pending section
+3. **Spawn agent** → Point to dispatch
+4. **Update index** → Move from Pending to Active
+5. **Monitor** → Poll for completion
+6. **Read completion dispatch** → From agent's folder
+7. **Update index** → Move from Active to Recent Complete
+8. **Commit** → Push coordination docs
 
-### Agent (On Spawn)
+### Agent (Hephaestus, Athena, Research)
 
-1. Read `DISPATCH-INDEX.md`
-2. Check **Unread Dispatches** for your name
-3. Read any dispatches listed, mark them read (move to Reference)
-4. Check **fromMain/state-of-project.md** for full context
-5. Work
-6. On complete: write dispatch if needed, update index (Active → Complete)
+1. **Read dispatch** → From fromMain/ or Unread Dispatches
+2. **Do the work** → Build, research, test
+3. **Write completion dispatch** → In your folder (fromHep/, fromAth/, fromResearch/)
+4. **Say DONE** → Signal complete in session
+
+### Critical Rule
+
+**Agents NEVER update DISPATCH-INDEX.** The orchestrator owns it.
 
 ### After Crash/Disconnect
 
-1. Read `DISPATCH-INDEX.md` to see what was running
-2. Check **Active** section for last known state
-3. Spawn agent with: "Continue from last checkpoint"
-4. Agent reads index, recovers context, continues
+1. **Orchestrator reads** DISPATCH-INDEX to see what was running
+2. **Check agent's folder** for completion dispatch
+3. **Resume or mark complete** based on findings
 
 **Goal:** Zero context loss. The index IS the memory.
 
