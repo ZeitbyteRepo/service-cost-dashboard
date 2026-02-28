@@ -2,7 +2,7 @@
 
 **The central nervous system for multi-agent coordination.**
 
-Last Updated: 2026-02-27 8:35 PM CST
+Last Updated: 2026-02-27 8:45 PM CST
 
 ---
 
@@ -10,7 +10,7 @@ Last Updated: 2026-02-27 8:35 PM CST
 
 | Agent | Dispatch | Task Summary |
 |-------|----------|--------------|
-| Athena | `fromMain/provider-research-brief.md` | Validate 13 reports, create summary (crashed, needs respawn) |
+| Hephaestus | `fromAthena/2026-02-27_provider-research-summary.md` | Build provider-specific cards & sub-pages based on research |
 
 ---
 
@@ -26,7 +26,7 @@ Last Updated: 2026-02-27 8:35 PM CST
 
 | For | File | Summary |
 |-----|------|---------|
-| Athena | `fromMain/provider-research-brief.md` | Coordinate 13 provider API research |
+| Hephaestus | `fromAthena/2026-02-27_provider-research-summary.md` | 13 provider research complete, ready to build |
 
 ---
 
@@ -34,6 +34,7 @@ Last Updated: 2026-02-27 8:35 PM CST
 
 | Agent | Dispatch | Completed | Result |
 |-------|----------|-----------|--------|
+| Athena | `fromMain/provider-research-brief.md` | 2026-02-27 20:45 | ✅ 13 provider API research reports + summary |
 | Hephaestus | `fromMain/ui-retro-pass.md` | 2026-02-27 16:55 | ✅ Retro terminal UI |
 | Hephaestus | Provider registry | 2026-02-27 10:30 | 13-provider system |
 
@@ -42,6 +43,6 @@ Last Updated: 2026-02-27 8:35 PM CST
 ## Status Legend
 
 - `pending` = Ready to spawn
-- `running` = Agent working
+- `running` = Agent working  
 - `blocked` = Needs human input
 - `complete` = Done
