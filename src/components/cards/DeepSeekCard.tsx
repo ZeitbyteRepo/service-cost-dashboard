@@ -4,13 +4,19 @@ import { formatCurrency } from './utils';
 
 interface Props {
   provider: ProviderData;
+  interactionMode?: 'link' | 'select';
+  onSelect?: (id: string) => void;
+  selected?: boolean;
 }
 
-export default function DeepSeekCard({ provider }: Props) {
+export default function DeepSeekCard({ provider, interactionMode, onSelect, selected }: Props) {
   return (
     <ProviderCardShell
       provider={provider}
       tag="window:deep"
+      interactionMode={interactionMode}
+      onSelect={onSelect}
+      selected={selected}
       metrics={[
         {
           label: 'Account Balance',

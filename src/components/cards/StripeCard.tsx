@@ -4,13 +4,19 @@ import { formatCurrency } from './utils';
 
 interface Props {
   provider: ProviderData;
+  interactionMode?: 'link' | 'select';
+  onSelect?: (id: string) => void;
+  selected?: boolean;
 }
 
-export default function StripeCard({ provider }: Props) {
+export default function StripeCard({ provider, interactionMode, onSelect, selected }: Props) {
   return (
     <ProviderCardShell
       provider={provider}
       tag="window:stripe"
+      interactionMode={interactionMode}
+      onSelect={onSelect}
+      selected={selected}
       metrics={[
         { label: 'Monthly Revenue', value: formatCurrency(provider.costs?.currentMonth, provider.costs?.currency ?? 'USD') },
         { label: 'Transaction Count', value: 'N/A (needs charges endpoint)' },

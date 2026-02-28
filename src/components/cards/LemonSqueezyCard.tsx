@@ -4,13 +4,19 @@ import { formatCurrency } from './utils';
 
 interface Props {
   provider: ProviderData;
+  interactionMode?: 'link' | 'select';
+  onSelect?: (id: string) => void;
+  selected?: boolean;
 }
 
-export default function LemonSqueezyCard({ provider }: Props) {
+export default function LemonSqueezyCard({ provider, interactionMode, onSelect, selected }: Props) {
   return (
     <ProviderCardShell
       provider={provider}
       tag="window:lemon"
+      interactionMode={interactionMode}
+      onSelect={onSelect}
+      selected={selected}
       metrics={[
         { label: 'Monthly Revenue', value: formatCurrency(provider.costs?.currentMonth, provider.costs?.currency ?? 'USD') },
         { label: 'Order Count', value: 'N/A (needs order aggregation)' },
