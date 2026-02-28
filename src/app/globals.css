@@ -60,34 +60,54 @@ body::before {
 }
 
 .provider-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
 }
 
-@media (max-width: 420px) {
+.fold-flex-layout {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.5rem;
+  min-height: calc(100dvh - 11.5rem);
+}
+
+.fold-flex-top,
+.fold-flex-bottom {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* cover mode: 360px baseline */
+@media (max-width: 399px) {
   .provider-grid {
     grid-template-columns: 1fr;
   }
+
+  .provider-grid > * {
+    min-height: 48px;
+  }
 }
 
-@media (min-width: 560px) {
+/* folded portrait/tablet-compact */
+@media (min-width: 640px) {
+  .provider-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* unfolded wide */
+@media (min-width: 1024px) {
   .provider-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 900px) {
+@media (min-width: 1280px) {
   .provider-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
-@media (min-width: 1080px) and (min-aspect-ratio: 17/10) {
-  .provider-grid {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-}
-
-@media (max-height: 760px) and (max-width: 900px) {
+@media (max-height: 760px) and (max-width: 1023px) {
   .crt-layer {
     display: grid;
     grid-template-rows: auto minmax(0, 1fr);

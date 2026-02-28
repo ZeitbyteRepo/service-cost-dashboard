@@ -21,13 +21,24 @@ interface ProviderCardShellProps {
   provider: ProviderData;
   metrics: DisplayMetric[];
   tag: string;
+  interactionMode?: 'link' | 'select';
+  onSelect?: (id: string) => void;
+  selected?: boolean;
 }
 
-export default function ProviderCardShell({ provider, metrics, tag }: ProviderCardShellProps) {
+export default function ProviderCardShell({
+  provider,
+  metrics,
+  tag,
+  interactionMode = 'link',
+  onSelect,
+  selected = false,
+}: ProviderCardShellProps) {
   const health = healthStyles[provider.health.status];
+  const shellClass = `border bg-[#0d1219] px-2.5 py-2 transition ${selected ? 'border-orange-400/85' : 'border-blue-500/45 hover:border-orange-400/75'}`;
 
-  return (
-    <article className="border border-blue-500/45 bg-[#0d1219] px-2.5 py-2 transition hover:border-orange-400/75">
+  const content = (
+    <article className={shellClass}>
       <div className="mb-2 flex items-center justify-between border-b border-blue-500/35 pb-1 text-[10px] uppercase tracking-[0.12em] text-blue-300">
         <span>┌─ {provider.id}</span>
         <span>{tag}</span>
@@ -64,10 +75,30 @@ export default function ProviderCardShell({ provider, metrics, tag }: ProviderCa
 
       <div className="mt-2 flex items-center justify-between border-t border-blue-500/30 pt-1 text-[10px] uppercase tracking-[0.1em] text-blue-300">
         <span>└─ status: {health.label}</span>
-        <Link href={`/providers/${provider.id}`} className="text-orange-300 hover:text-orange-200">
-          Details →
-        </Link>
+        <span className="text-orange-300">{interactionMode === 'select' ? (selected ? 'Selected' : 'Select') : 'Details →'}</span>
       </div>
     </article>
+  );
+
+  if (interactionMode === 'select') {
+    return (
+      <button
+        type="button"
+        onClick={() => onSelect?.(provider.id)}
+        className="block min-h-12 w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07090d]"
+        aria-pressed={selected}
+      >
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <Link
+      href={`/providers/${provider.id}`}
+      className="block min-h-12 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#07090d]"
+    >
+      {content}
+    </Link>
   );
 }

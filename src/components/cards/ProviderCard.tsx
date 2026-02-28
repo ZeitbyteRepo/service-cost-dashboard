@@ -8,21 +8,31 @@ import StripeCard from './StripeCard';
 
 interface Props {
   provider: ProviderData;
+  interactionMode?: 'link' | 'select';
+  onSelect?: (id: string) => void;
+  selected?: boolean;
 }
 
-export default function ProviderCard({ provider }: Props) {
+export default function ProviderCard({ provider, interactionMode, onSelect, selected }: Props) {
+  const sharedProps = {
+    provider,
+    interactionMode,
+    onSelect,
+    selected,
+  };
+
   switch (provider.id) {
     case 'railway':
-      return <RailwayCard provider={provider} />;
+      return <RailwayCard {...sharedProps} />;
     case 'stripe':
-      return <StripeCard provider={provider} />;
+      return <StripeCard {...sharedProps} />;
     case 'lemonsqueezy':
-      return <LemonSqueezyCard provider={provider} />;
+      return <LemonSqueezyCard {...sharedProps} />;
     case 'github':
-      return <GitHubCard provider={provider} />;
+      return <GitHubCard {...sharedProps} />;
     case 'deepseek':
-      return <DeepSeekCard provider={provider} />;
+      return <DeepSeekCard {...sharedProps} />;
     default:
-      return <GenericProviderCard provider={provider} />;
+      return <GenericProviderCard {...sharedProps} />;
   }
 }
