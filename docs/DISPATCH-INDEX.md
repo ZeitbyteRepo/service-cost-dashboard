@@ -2,18 +2,7 @@
 
 **The central nervous system for multi-agent coordination.**
 
-Last Updated: 2026-02-27 14:15 PM CST
-
----
-
-## How This Works
-
-| Section | What It Means | Who Acts |
-|---------|---------------|----------|
-| **Pending** | Agents to spawn | Orchestrator reads, spawns agents |
-| **Active** | Currently running | Orchestrator monitors, agents report |
-| **Unread Dispatches** | New mail for agents | Agents read on spawn, then mark read |
-| **Recent Complete** | Finished work | Audit trail, handoff history |
+Last Updated: 2026-02-27 8:35 PM CST
 
 ---
 
@@ -21,8 +10,7 @@ Last Updated: 2026-02-27 14:15 PM CST
 
 | Agent | Dispatch | Task Summary |
 |-------|----------|--------------|
-| Athena | fromMain/provider-research-brief.md | Coordinate 13 research agents for provider API exploration |
-| Hephaestus | fromMain/ui-retro-pass.md | UI redesign - traditional retro, terminal-like, no gradients |
+| Athena | `fromMain/provider-research-brief.md` | Validate 13 reports, create summary (crashed, needs respawn) |
 
 ---
 
@@ -38,7 +26,7 @@ Last Updated: 2026-02-27 14:15 PM CST
 
 | For | File | Summary |
 |-----|------|---------|
-| All | `fromMain/2026-02-27_state-of-project.md` | 5/13 providers working, 3 need key fixes, UI redesigned |
+| Athena | `fromMain/provider-research-brief.md` | Coordinate 13 provider API research |
 
 ---
 
@@ -46,28 +34,8 @@ Last Updated: 2026-02-27 14:15 PM CST
 
 | Agent | Dispatch | Completed | Result |
 |-------|----------|-----------|--------|
-| Hephaestus | `fromMain/ui-redesign-request.md` (implicit) | 2026-02-27 13:54 | Mistral/cassette-futurism UI deployed |
-| Hephaestus | API investigation | 2026-02-27 13:22 | Diagnosed 3 permission errors |
-| Hephaestus | Provider registry | 2026-02-27 10:30 | Built 13-provider system |
-| Research | `fromResearch/2026-02-27-billing-usage-api-research.md` | 2026-02-27 09:00 | Documented 13 provider APIs |
-
----
-
-## Reference Dispatches (Always Available)
-
-| File | Purpose |
-|------|---------|
-| `fromMain/2026-02-27_state-of-project.md` | Current project state |
-| `fromResearch/2026-02-27-billing-usage-api-research.md` | Provider API documentation |
-
----
-
-## Rules
-
-1. **Orchestrator**: On heartbeat, check Pending. If entry exists, spawn agent and move to Active.
-2. **Agent**: On spawn, read Unread Dispatches for your name, then mark read (move to Reference).
-3. **Agent**: On complete, move your Active entry to Recent Complete, write dispatch if needed.
-4. **All**: The index IS the truth. If it's not here, it doesn't exist.
+| Hephaestus | `fromMain/ui-retro-pass.md` | 2026-02-27 16:55 | ✅ Retro terminal UI |
+| Hephaestus | Provider registry | 2026-02-27 10:30 | 13-provider system |
 
 ---
 
