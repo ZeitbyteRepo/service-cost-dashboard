@@ -1,29 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import ProviderCard from '@/components/cards/ProviderCard';
 import type { ProviderData } from '@/lib/providers/types';
 
 interface ProvidersApiResponse {
   providers: ProviderData[];
-}
-
-const healthStyles: Record<ProviderData['health']['status'], { dot: string; text: string; label: string }> = {
-  healthy: { dot: 'bg-blue-400', text: 'text-blue-300', label: 'Healthy' },
-  degraded: { dot: 'bg-yellow-400', text: 'text-yellow-300', label: 'Degraded' },
-  error: { dot: 'bg-red-400', text: 'text-red-300', label: 'Error' },
-  unknown: { dot: 'bg-slate-400', text: 'text-slate-300', label: 'Unknown' },
-};
-
-function formatCurrency(amount: number, currency: string) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
-
-function toCategoryLabel(category: ProviderData['category']) {
-  return category.charAt(0).toUpperCase() + category.slice(1);
 }
 
 function formatTimestamp(timestamp: Date | null) {
@@ -126,15 +108,11 @@ export default function Page() {
               <h1 className="text-sm font-semibold uppercase tracking-[0.14em] text-[#f5e6b3] sm:text-base">
                 Multi-Provider Control Panel
               </h1>
-              <p className="mt-0.5 text-[10px] uppercase tracking-[0.12em] text-blue-200">
-                Last Sync: {formatTimestamp(lastUpdated)}
-              </p>
+              <p className="mt-0.5 text-[10px] uppercase tracking-[0.12em] text-blue-200">Last Sync: {formatTimestamp(lastUpdated)}</p>
             </div>
 
             <div className="flex items-center gap-2 text-[10px]">
-              <p className="border border-blue-400/65 bg-[#111a28] px-2 py-1 uppercase tracking-[0.14em] text-blue-200">
-                {providers.length} Providers
-              </p>
+              <p className="border border-blue-400/65 bg-[#111a28] px-2 py-1 uppercase tracking-[0.14em] text-blue-200">{providers.length} Providers</p>
               <button
                 onClick={fetchProviders}
                 disabled={isFetching}
@@ -156,74 +134,9 @@ export default function Page() {
             </div>
           ) : (
             <div className="provider-grid grid gap-2">
-              {providers.map((provider) => {
-                const health = healthStyles[provider.health.status];
-                const costDisplay = provider.costs
-                  ? formatCurrency(provider.costs.currentMonth, provider.costs.currency)
-                  : 'N/A';
-                const usagePercent = provider.usage ? Math.max(0, Math.min(100, provider.usage.percentage)) : null;
-                const usageColor =
-                  provider.health.status === 'error'
-                    ? 'bg-red-400'
-                    : provider.health.status === 'degraded'
-                      ? 'bg-yellow-400'
-                      : 'bg-blue-400';
-
-                return (
-                  <article key={provider.id} className="border border-blue-500/45 bg-[#0d1219] px-2.5 py-2 transition hover:border-orange-400/75">
-                    <div className="mb-2 flex items-center justify-between border-b border-blue-500/35 pb-1 text-[10px] uppercase tracking-[0.12em] text-blue-300">
-                      <span>┌─ {provider.id}</span>
-                      <span>window:provider</span>
-                    </div>
-
-                    <div className="mb-1.5 flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <h2 className="truncate text-sm font-semibold uppercase tracking-[0.08em] text-[#f5e6b3]">
-                          {provider.name}
-                        </h2>
-                        <div className="mt-1 flex flex-wrap items-center gap-1">
-                          <span className="border border-blue-500/60 bg-[#121a28] px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] text-blue-200">
-                            {toCategoryLabel(provider.category)}
-                          </span>
-                          {!provider.hasBillingApi && (
-                            <span className="border border-yellow-500/70 bg-[#1f1a0f] px-1.5 py-0.5 text-[10px] uppercase tracking-[0.12em] text-yellow-300">
-                              EST
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className={`inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.12em] ${health.text}`}>
-                        <span className={`h-2 w-2 ${health.dot}`} />
-                        {health.label}
-                      </div>
-                    </div>
-
-                    <div className="mb-1.5 grid grid-cols-[auto_1fr] items-end gap-x-2 gap-y-0.5">
-                      <p className="text-[10px] uppercase tracking-[0.12em] text-blue-200">Month Cost</p>
-                      <p className="text-right text-base font-semibold leading-none text-orange-300">{costDisplay}</p>
-                    </div>
-
-                    {provider.usage && usagePercent !== null && (
-                      <div>
-                        <div className="mb-1 flex items-center justify-between text-[10px] uppercase tracking-[0.1em] text-slate-300">
-                          <span className="truncate pr-2 text-yellow-100">
-                            {provider.usage.current} {provider.usage.unit}
-                            {provider.usage.limit ? ` / ${provider.usage.limit} ${provider.usage.unit}` : ''}
-                          </span>
-                          <span className="text-blue-200">{usagePercent.toFixed(0)}%</span>
-                        </div>
-                        <div className="h-2 w-full border border-blue-700/70 bg-[#07090d] p-[1px]">
-                          <div className={`h-full ${usageColor} transition-all`} style={{ width: `${usagePercent}%` }} />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="mt-2 border-t border-blue-500/30 pt-1 text-[10px] uppercase tracking-[0.1em] text-blue-300">
-                      └─ status: {health.label}
-                    </div>
-                  </article>
-                );
-              })}
+              {providers.map((provider) => (
+                <ProviderCard key={provider.id} provider={provider} />
+              ))}
             </div>
           )}
         </main>

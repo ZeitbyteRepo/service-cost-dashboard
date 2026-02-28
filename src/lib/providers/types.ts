@@ -20,6 +20,21 @@ export interface ProviderHealth {
   errorMessage?: string;
 }
 
+export interface ProviderMetric {
+  label: string;
+  value: string;
+}
+
+export interface ProviderSection {
+  title: string;
+  metrics: ProviderMetric[];
+}
+
+export interface ProviderObjectList {
+  title: string;
+  items: string[];
+}
+
 export interface ProviderData {
   id: string;
   name: string;
@@ -29,6 +44,9 @@ export interface ProviderData {
   health: ProviderHealth;
   lastUpdated: string;
   hasBillingApi: boolean;
+  cardMetrics?: ProviderMetric[];
+  detailSections?: ProviderSection[];
+  objectLists?: ProviderObjectList[];
 }
 
 export interface ProviderConfig {
