@@ -10,7 +10,7 @@ Last Updated: 2026-02-28 1:10 PM CST
 
 | Agent | Dispatch | Task Summary |
 |-------|----------|--------------|
-| Hephaestus | `fromMain/2026-02-28_dashboard-enhancement.md` | Enhance dashboard: detailed fetches, historical tracking, estimation |
+| *(none)* | - | - |
 
 ---
 
@@ -18,7 +18,7 @@ Last Updated: 2026-02-28 1:10 PM CST
 
 | Agent | Task | Started | Status |
 |-------|------|---------|--------|
-| *(none)* | - | - | - |
+| Hephaestus | Dashboard enhancement | 2026-02-28 13:10 | Running |
 
 ---
 
