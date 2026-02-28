@@ -2,7 +2,7 @@
 
 **The central nervous system for multi-agent coordination.**
 
-Last Updated: 2026-02-27 9:05 PM CST
+Last Updated: 2026-02-28 12:15 AM CST
 
 ---
 
@@ -10,7 +10,7 @@ Last Updated: 2026-02-27 9:05 PM CST
 
 | Agent | Dispatch | Task Summary |
 |-------|----------|--------------|
-| *(none)* | - | - |
+| *(none)* | - | Blocked waiting for Samuel to fix API keys |
 
 ---
 
@@ -26,7 +26,8 @@ Last Updated: 2026-02-27 9:05 PM CST
 
 | For | File | Summary |
 |-----|------|---------|
-| *(none)* | - | - |
+| All | `fromMain/2026-02-28_session-summary.md` | Session summary, system operational, blocked on API keys |
+| Hephaestus | `fromAthena/2026-02-27_provider-research-complete.md` | 13 provider research complete - ready to build detailed fetch |
 
 ---
 
@@ -34,10 +35,40 @@ Last Updated: 2026-02-27 9:05 PM CST
 
 | Agent | Dispatch | Completed | Result |
 |-------|----------|-----------|--------|
+| ClawControl | Heartbeat system | 2026-02-28 00:08 | ✅ Created 5 tasks from conversation todos |
 | Hephaestus | `fromAthena/2026-02-27_provider-research-complete.md` | 2026-02-27 21:05 | ✅ Provider-specific cards + sub-pages |
 | Athena | `fromMain/provider-research-brief.md` | 2026-02-27 20:45 | ✅ 13 provider research reports |
 | Hephaestus | `fromMain/ui-retro-pass.md` | 2026-02-27 16:55 | ✅ Retro terminal UI |
-| Hephaestus | Provider registry | 2026-02-27 10:30 | 13-provider system |
+
+---
+
+## Blocked (Needs Human)
+
+| Task | Owner | Action Required |
+|------|-------|-----------------|
+| Fix API keys | 👤 Samuel | Regenerate OpenAI/Anthropic/ElevenLabs keys with proper scopes |
+
+---
+
+## Next Tasks (After Unblocking)
+
+| Priority | Task | Agent | Dispatch |
+|----------|------|-------|----------|
+| 1 | Detailed fetch functions | Hephaestus | fromAthena/provider-research-complete.md |
+| 2 | Historical data tracking | Hephaestus | (pending) |
+| 3 | Rate card estimation | Hephaestus | (pending) |
+| 4 | Uptime monitoring | Hephaestus | (pending) |
+
+---
+
+## System Status
+
+| Component | Status |
+|-----------|--------|
+| Dashboard | 🟢 https://service-cost-dashboard-production.up.railway.app |
+| ClawControl Kanban | 🟢 http://localhost:5173 (15-min heartbeat) |
+| DISPATCH-INDEX | 🟢 Operational |
+| Git repo | 🟢 ZeitbyteRepo/service-cost-dashboard |
 
 ---
 
