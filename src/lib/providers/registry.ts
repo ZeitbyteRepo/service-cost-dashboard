@@ -93,29 +93,87 @@ async function createHttpError(providerName: string, res: Response): Promise<Err
   return new Error(`${providerName} API error: ${res.status}${bodyHint}${permissionHint}`);
 }
 
-// Railway - already integrated
+// Railway - detailed fetch
 async function fetchRailway(): Promise<ProviderData> {
   try {
     const data = await getAllRailwayData();
-    const baseCredits = data.projectCount * 500 + 500;
-    const currentCost = (baseCredits + Math.random() * 200) * 0.01;
-    
+    const services = data.projectMetrics.length > 0
+      ? data.projectMetrics.flatMap((project) =>
+          project.services.map((service) => ({
+            project: project.name,
+            name: service.name,
+            cpu: extractAmountValue(service.metrics?.cpu),
+            memory: extractAmountValue(service.metrics?.memory),
+            network: extractAmountValue(service.metrics?.networkEgress),
+          })),
+        )
+      : data.projects.flatMap((project) =>
+          project.services.edges.map((edge) => ({
+            project: project.name,
+            name: edge.node.name,
+            cpu: 0,
+            memory: 0,
+            network: 0,
+          })),
+        );
+
+    const projectedCost = extractAmountValue(data.estimatedUsage?.projectedCost);
+    const estimatedCredits = extractAmountValue(data.estimatedUsage?.estimatedUsage);
+    const currentCost = projectedCost > 0 ? projectedCost : estimatedCredits * 0.01;
+
+    const totalCpu = services.reduce((sum, service) => sum + service.cpu, 0);
+    const totalMemory = services.reduce((sum, service) => sum + service.memory, 0);
+    const totalBandwidth = services.reduce((sum, service) => sum + service.network, 0);
+
+    const listPreview = services.slice(0, 3).map((service) => service.name).join(', ') || 'None';
+
     return {
       id: 'railway',
       name: 'Railway',
       category: 'infrastructure',
       costs: {
         currentMonth: currentCost,
-        lastMonth: currentCost * 0.9,
-        projected: currentCost * 1.15,
+        lastMonth: null,
+        projected: projectedCost > 0 ? projectedCost : currentCost,
         currency: 'USD',
       },
       usage: {
         unit: 'credits',
-        current: baseCredits,
+        current: estimatedCredits,
         limit: null,
         percentage: 0,
       },
+      cardMetrics: [
+        { label: 'Monthly Spend', value: new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 }).format(currentCost) },
+        { label: 'Project Count', value: new Intl.NumberFormat('en-US').format(data.projectCount) },
+        { label: 'Services', value: new Intl.NumberFormat('en-US').format(services.length) + ' (' + listPreview + ')' },
+        { label: 'CPU Usage', value: new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(totalCpu) + ' vCPU-h' },
+        { label: 'Memory Usage', value: new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(totalMemory) + ' GB-h' },
+        { label: 'Bandwidth', value: new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(totalBandwidth) + ' GB' },
+      ],
+      detailSections: [
+        {
+          title: 'Services Resource Snapshot',
+          metrics: services.slice(0, 8).map((service) => ({
+            label: service.project + '/' + service.name,
+            value:
+              'CPU ' + new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(service.cpu) +
+              ' | MEM ' + new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(service.memory) +
+              ' | BW ' + new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(service.network),
+          })),
+        },
+      ],
+      objectLists: [
+        {
+          title: 'Projects',
+          items: data.projects.map((project) => project.name),
+        },
+        {
+          title: 'Services',
+          items: services.map((service) => service.project + '/' + service.name),
+        },
+      ],
+      trendSeries: [],
       health: createHealthyHealth(),
       lastUpdated: new Date().toISOString(),
       hasBillingApi: true,

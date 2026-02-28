@@ -39,7 +39,7 @@ export default function ProviderCardShell({
 
   const content = (
     <article className={shellClass}>
-      <div className="mb-2 flex items-center justify-between border-b border-blue-500/35 pb-1 text-[10px] uppercase tracking-[0.12em] text-blue-300">
+      <div className="card-chrome mb-2 flex items-center justify-between border-b border-blue-500/35 pb-1 text-[10px] uppercase tracking-[0.12em] text-blue-300">
         <span>┌─ {provider.id}</span>
         <span>{tag}</span>
       </div>
@@ -67,13 +67,13 @@ export default function ProviderCardShell({
       <div className="space-y-1.5">
         {metrics.map((metric) => (
           <div key={metric.label} className="grid grid-cols-[auto_1fr] items-center gap-x-2 gap-y-0.5">
-            <p className="text-[10px] uppercase tracking-[0.12em] text-blue-200">{metric.label}</p>
+            <p className="card-metric-label text-[10px] uppercase tracking-[0.12em] text-blue-200">{metric.label}</p>
             <p className="truncate text-right text-xs font-semibold text-orange-300">{metric.value}</p>
           </div>
         ))}
       </div>
 
-      <div className="mt-2 flex items-center justify-between border-t border-blue-500/30 pt-1 text-[10px] uppercase tracking-[0.1em] text-blue-300">
+      <div className="card-footer mt-2 flex items-center justify-between border-t border-blue-500/30 pt-1 text-[10px] uppercase tracking-[0.1em] text-blue-300">
         <span>└─ status: {health.label}</span>
         <span className="text-orange-300">{interactionMode === 'select' ? (selected ? 'Selected' : 'Select') : 'Details →'}</span>
       </div>

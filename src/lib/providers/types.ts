@@ -35,6 +35,11 @@ export interface ProviderObjectList {
   items: string[];
 }
 
+export interface ProviderTrendPoint {
+  label: string;
+  value: number;
+}
+
 export interface ProviderData {
   id: string;
   name: string;
@@ -47,6 +52,7 @@ export interface ProviderData {
   cardMetrics?: ProviderMetric[];
   detailSections?: ProviderSection[];
   objectLists?: ProviderObjectList[];
+  trendSeries?: ProviderTrendPoint[];
 }
 
 export interface ProviderConfig {
