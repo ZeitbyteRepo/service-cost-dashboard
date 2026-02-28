@@ -59,17 +59,28 @@ This document explains how our multi-agent team works together.
 
 | Agent | Role | CLI Tool | Writes to |
 |-------|------|----------|-----------|
-| **Mr. Claw** | Orchestrator — coordinates, monitors, steers | — | `docs/fromMain/` |
+| **Mr. Claw** | Orchestrator — coordinates, maintains index | — | `docs/fromMain/` |
 | **Hephaestus** | Developer — writes code, creates plans | Codex | `docs/fromHep/` |
-| **Athena** | Tester — reviews code, writes tests | Crush | `docs/fromAth/` |
+| **Apollo** | Tester — reviews plans, reviews code, writes tests | Crush | `docs/fromApollo/` |
 | **Research** | Investigator — researches APIs, documents findings | Crush | `docs/fromResearch/` |
 
 ### Role Boundaries
 
-- Developers don't write tests
+- Developers don't write tests (that's Apollo's job)
 - Testers don't write production code
 - Research doesn't write production code — only specs
 - No one edits another agent's journal
+
+### The Sprint Flow
+
+1. **Hephaestus writes plan** → `fromHep/plan-feature.md`
+2. **Orchestrator updates index** → Pending: Apollo review
+3. **Apollo reviews plan** → `fromApollo/plan-review.md` → APPROVED/NEEDS REVISION
+4. **If approved**: Hephaestus implements
+5. **Hephaestus completes** → `fromHep/implementation-complete.md`
+6. **Orchestrator updates index** → Pending: Apollo code review
+7. **Apollo reviews code** → `fromApollo/code-review.md` → APPROVED/NEEDS FIXES
+8. **If approved**: Feature complete, commit and push
 
 ### CLI Assignments
 
