@@ -2,7 +2,7 @@
 
 **The central nervous system for multi-agent coordination.**
 
-Last Updated: 2026-02-28 12:15 AM CST
+Last Updated: 2026-02-28 1:10 PM CST
 
 ---
 
@@ -10,7 +10,7 @@ Last Updated: 2026-02-28 12:15 AM CST
 
 | Agent | Dispatch | Task Summary |
 |-------|----------|--------------|
-| *(none)* | - | Blocked waiting for Samuel to fix API keys |
+| Hephaestus | `fromMain/2026-02-28_dashboard-enhancement.md` | Enhance dashboard: detailed fetches, historical tracking, estimation |
 
 ---
 
@@ -26,8 +26,8 @@ Last Updated: 2026-02-28 12:15 AM CST
 
 | For | File | Summary |
 |-----|------|---------|
-| All | `fromMain/2026-02-28_session-summary.md` | Session summary, system operational, blocked on API keys |
-| Hephaestus | `fromAthena/2026-02-27_provider-research-complete.md` | 13 provider research complete - ready to build detailed fetch |
+| Hephaestus | `fromMain/2026-02-28_dashboard-enhancement.md` | Dashboard enhancement plan (4 phases) |
+| All | `fromMain/2026-02-28_session-summary.md` | Session summary, system operational |
 
 ---
 
@@ -35,10 +35,10 @@ Last Updated: 2026-02-28 12:15 AM CST
 
 | Agent | Dispatch | Completed | Result |
 |-------|----------|-----------|--------|
-| ClawControl | Heartbeat system | 2026-02-28 00:08 | ✅ Created 5 tasks from conversation todos |
-| Hephaestus | `fromAthena/2026-02-27_provider-research-complete.md` | 2026-02-27 21:05 | ✅ Provider-specific cards + sub-pages |
-| Athena | `fromMain/provider-research-brief.md` | 2026-02-27 20:45 | ✅ 13 provider research reports |
-| Hephaestus | `fromMain/ui-retro-pass.md` | 2026-02-27 16:55 | ✅ Retro terminal UI |
+| ClawControl | Kanban tracking | 2026-02-28 12:00 | ✅ Tracking todos from conversation |
+| Hephaestus | Provider cards & sub-pages | 2026-02-27 21:05 | ✅ 13 provider cards built |
+| Athena | Provider API research | 2026-02-27 20:45 | ✅ 13 research reports |
+| Hephaestus | Retro terminal UI | 2026-02-27 16:55 | ✅ Cassette futurism theme |
 
 ---
 
@@ -47,28 +47,6 @@ Last Updated: 2026-02-28 12:15 AM CST
 | Task | Owner | Action Required |
 |------|-------|-----------------|
 | Fix API keys | 👤 Samuel | Regenerate OpenAI/Anthropic/ElevenLabs keys with proper scopes |
-
----
-
-## Next Tasks (After Unblocking)
-
-| Priority | Task | Agent | Dispatch |
-|----------|------|-------|----------|
-| 1 | Detailed fetch functions | Hephaestus | fromAthena/provider-research-complete.md |
-| 2 | Historical data tracking | Hephaestus | (pending) |
-| 3 | Rate card estimation | Hephaestus | (pending) |
-| 4 | Uptime monitoring | Hephaestus | (pending) |
-
----
-
-## System Status
-
-| Component | Status |
-|-----------|--------|
-| Dashboard | 🟢 https://service-cost-dashboard-production.up.railway.app |
-| ClawControl Kanban | 🟢 http://localhost:5173 (15-min heartbeat) |
-| DISPATCH-INDEX | 🟢 Operational |
-| Git repo | 🟢 ZeitbyteRepo/service-cost-dashboard |
 
 ---
 
