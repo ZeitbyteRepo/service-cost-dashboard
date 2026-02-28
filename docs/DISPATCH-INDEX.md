@@ -21,7 +21,8 @@ Last Updated: 2026-02-27 14:15 PM CST
 
 | Agent | Dispatch | Task Summary |
 |-------|----------|--------------|
-| *(none)* | - | - |
+| Athena | fromMain/provider-research-brief.md | Coordinate 13 research agents for provider API exploration |
+| Hephaestus | fromMain/ui-retro-pass.md | UI redesign - traditional retro, terminal-like, no gradients |
 
 ---
 
